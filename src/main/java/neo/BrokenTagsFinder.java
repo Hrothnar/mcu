@@ -11,8 +11,8 @@ import org.jaudiotagger.audio.AudioHeader;
 import org.jaudiotagger.tag.FieldKey;
 import org.jaudiotagger.tag.Tag;
 
-import neo.dto.FileReport;
-import neo.dto.TopStructure;
+import neo.dto.FieldState;
+import neo.dto.FileState;
 import neo.utility.Env;
 import neo.utility.Validator;
 import tools.jackson.databind.ObjectMapper;
@@ -20,7 +20,7 @@ import tools.jackson.databind.ObjectMapper;
 public class BrokenTagsFinder {
 
     private ObjectMapper om = new ObjectMapper();
-    private List<TopStructure> reports = new ArrayList<>();
+    private List<FileState> reports = new ArrayList<>();
     private Set<String> supportedExtensions = Set.of(Env.get("MUSIC_EXTENSIONS").replaceAll("\s", "").split(","));
 
     public void run() {
@@ -44,7 +44,8 @@ public class BrokenTagsFinder {
                 readAndReportFilesTags(file, ++depth);
             } else {
                 String fileName = file.getName();
-                String pathWithoutName = file.getAbsolutePath().replace(fileName, "");
+                String location = file.getAbsolutePath().replace(fileName, "");
+        
                 String fileExtension = fileName.substring(fileName.lastIndexOf(".") + 1);
 
                 if (supportedExtensions.contains(fileExtension)) {
@@ -52,22 +53,29 @@ public class BrokenTagsFinder {
                     AudioHeader header = audio.getAudioHeader();
                     Tag tag = audio.getTag();
 
-                    String title = tag.getFirst(FieldKey.TITLE);
-                    String artist =tag.getFirst(FieldKey.ARTIST);
-                    String album = tag.getFirst(FieldKey.ALBUM);
-                    String year = tag.getFirst(FieldKey.YEAR);
-                    String albumCover = tag.getFirst(FieldKey.COVER_ART);
-                    String bitrate = header.getBitRate();
+                    if (tag == null) {
+                        continue;
+                    }
 
-                    FileReport fileReport = new FileReport(fileName, pathWithoutName, title, artist, album, year, bitrate, albumCover);
+                    FieldState title = Validator.validateText(tag.getFirst(FieldKey.TITLE));
+                    FieldState artist = Validator.validateText(tag.getFirst(FieldKey.ARTIST));
+                    FieldState album = Validator.validateText(tag.getFirst(FieldKey.ALBUM));
+                    FieldState year = Validator.validateText(tag.getFirst(FieldKey.YEAR));
+                    FieldState albumCover = Validator.validateText(tag.getFirst(FieldKey.COVER_ART));
+                    FieldState genre = Validator.validateText(tag.getFirst(FieldKey.GENRE));
+                    FieldState bitrate = Validator.validateBitrate(header.getBitRateAsNumber());
 
-                    System.out.println(fileReport);
-
+                    FileState fileState = new FileState(fileName, location, title, artist, album, year, bitrate, albumCover, genre);
+                    
+                    if (fileState.breakages > 0) {
+                        reports.add(fileState);
+                    }
+                    
                     // Thread.sleep(2000);
-
-                    reports.add(new TopStructure(fileReport));
                 }
             }
         }
+
+        reports.sort((x, y) -> y.breakages - x.breakages);
     }
 }

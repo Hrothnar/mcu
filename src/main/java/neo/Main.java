@@ -1,10 +1,8 @@
 package neo;
 
-import java.util.Arrays;
 import java.util.Set;
 
-import neo.utility.CommandArgument;
-import neo.utility.Env;
+import neo.enums.CommandArgument;
 
 public class Main {
 

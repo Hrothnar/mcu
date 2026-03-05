@@ -1,4 +1,4 @@
-package neo.utility;
+package neo.enums;
 
 public enum CommandArgument {
 

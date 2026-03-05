@@ -19,17 +19,14 @@ Starts the process of finding tracks with damaged tags, breaking and down in a c
 - build a broken.json file with the format:
 ```JSON
 [{
-	"original": {
-		"name": "name",
-		"location": "full path",
-		"title": "broken/empty, title",
-		"artist": "broken/empty, title",
-		"album": "broken/empty, album",
-		"year": "broken/empty, year",
-		"bitrate": "broken/empty, bitrate",
-		"album cover": "empty"
-	},
-	"modified": {}
+	"name": {"value": "name", "status": "broken"},
+	"location": {"value": "absolute path"},
+	"title": {"value": "title", "status": "empty/broken"},
+	"artist": {"value": "artist", "status": "empty/broken"},
+	"album": {"value": "album", "status": "empty/broken"},
+	"year": {"value": "year", "status": "empty/broken"},
+	"bitrate": {"value": "bitrate", "status": "empty/low"},
+	"album cover": {"value": "album cover", "status": "empty"}
 }]
 ```
 Note:
@@ -55,22 +52,14 @@ Starts the tag recovery process by assigning new tags to the damaged tracks. Thi
 Format of the .json file:
 ```JSON
 [{
-	"original": {
-		"name": "name",
-		"location": "full path",
-		"title": "broken/empty, title",
-		"artist": "broken/empty, title",
-		"album": "broken/empty, album",
-		"year": "broken/empty, year",
-		"bitrate": "broken/empty, bitrate",
-		"album cover": "empty"
-	},
-	"modified": {,
-		"title": "title",
-		"artist": "title",
-		"album": "album",
-		"year": "year"
-	}
+	"name": {"value": "name"},
+	"location": {"value": "absolute path"},
+	"title": {"value": "title", "status": "empty/broken", "modified": "new title"},
+	"artist": {"value": "artist", "status": "empty/broken", "modified": "new artist"},
+	"album": {"value": "album", "status": "empty/broken", "modified": "new album"},
+	"year": {"value": "year", "status": "empty/broken", "modified": "new year"},
+	"bitrate": {"value": "bitrate", "status": "empty/low", "modified": "new bitrate"},
+	"album cover": {"value": "album cover", "status": "empty"}
 }]
 ```
 Note:
@@ -95,14 +84,8 @@ To Остальные goes artists below 7 songs and they are not categorized fu
 Every name change and relocation is logged in the following format:
 ```JSON
 [{
-	"original": {
-		"name": "name",
-		"location": "full path"
-	},
-	"modified": {,
-		"name": "name",
-		"location": "full path"
-	}
+	"name": {"value": "name", "modified": "new name"},
+	"location": {"value": "absolute path", "modified": "new location"},
 }]
 ```
 ## Status map builder
