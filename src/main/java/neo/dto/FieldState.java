@@ -11,6 +11,10 @@ public class FieldState {
     public String status = null;
     public String modified = null;
 
+    public FieldState() {
+        
+    }
+
     public FieldState(String value) {
         this.value = value;
     }

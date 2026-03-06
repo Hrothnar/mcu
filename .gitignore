@@ -88,3 +88,4 @@ nb-configuration.xml
 ## Miscellaneous
 ##############################
 /logs
+/src/main/outputs

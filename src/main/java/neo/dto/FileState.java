@@ -20,6 +20,10 @@ public class FileState {
     public FieldState genre = null;
     public int breakages = 0;
 
+    public FileState() {
+
+    }
+
     public FileState(String name, String location, FieldState title, FieldState artist, FieldState album,
             FieldState year, FieldState bitrate, FieldState albumCover, FieldState genre) {
         this.name = name;

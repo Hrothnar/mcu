@@ -3,7 +3,7 @@
 This is a utility for organizing music, by finding broken tags, applying new ones, creating simple breakdowns and another couple of features.
 ## Broken tags finder
 
-Starts the process of finding tracks with damaged tags, breaking and down in a convenient format for further analyze and treatment.
+Starts the process of finding tracks with damaged tags, breaking it down in a convenient format for further analyze and treatment.
 
 - specify a root music directory
 - go over every sub-directory recursively
@@ -13,6 +13,7 @@ Starts the process of finding tracks with damaged tags, breaking and down in a c
 	- album
 	- year
 	- bitrate
+	- genre
 	- album cover
 - if the file is healthy - continue
 - if at least one of the tags is broken, move the current .mp3 file to a temporal dedicated flat folder called "Broken"

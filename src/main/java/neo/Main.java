@@ -1,12 +1,13 @@
 package neo;
 
+import java.io.IOException;
 import java.util.Set;
 
 import neo.enums.CommandArgument;
 
 public class Main {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         System.out.println("==========================================================================================");
         System.out.println("The program is in the process...");
 
