@@ -4,14 +4,16 @@ public enum CommandArgument {
 
     FIND_BROKEN_TAGS("--find-broken-tags"),
     MODIFY_TAGS("--modify-tags"),
+    COLLECT("--collect"),
     SORT("--sort"),
-    BUILD_STATUS_MAP("--build-status-map");
+    BREAKDOWN("--breakdown");
 
     private static String[] defaultArguments = new String[] {
+            COLLECT.getArgument(),
             FIND_BROKEN_TAGS.getArgument(),
             MODIFY_TAGS.getArgument(),
             SORT.getArgument(),
-            BUILD_STATUS_MAP.getArgument()
+            BREAKDOWN.getArgument()
     };
 
     private String argument = null;

@@ -1,6 +1,6 @@
 package neo;
 
-public class StatusMapBuilder {
+public class BreakdownBuilder {
     
     public void run() {
 

@@ -1,22 +1,17 @@
 package neo.utility;
 
-import java.sql.Time;
 import java.time.DateTimeException;
 import java.time.LocalDate;
-import java.time.chrono.ChronoLocalDate;
-import java.time.temporal.TemporalAccessor;
-import java.util.Date;
 import java.util.regex.Pattern;
 
 import neo.dto.FieldState;
-import neo.dto.FileState;
 import neo.enums.Status;
 
 public class Validator {
 
     private static Pattern latinRangePatter = Pattern.compile("[\u0000-\u007F]");
     private static Pattern cyrillicRangePattern = Pattern.compile("[\u0400-\u04FF]");
-    private static Pattern symbols = Pattern.compile(".ru|.com|.net|\\[");
+    private static Pattern symbols = Pattern.compile("\\.ru|\\.com|\\.net|\\[muz");
 
     public static FieldState validateText(String text) {
         if (text.isBlank()) {
@@ -41,12 +36,13 @@ public class Validator {
             }
         }
 
-        return incorrectSymbols / text.length() < 0.2 ? new FieldState(text)
-                : new FieldState(text, Status.BROKEN.toString());
-    }
+        return ((double) incorrectSymbols / text.length()) > 0.2 ? 
+                    new FieldState(text, Status.BROKEN.toString()) : 
+                    new FieldState(text);
+        }
 
     public static FieldState validateBitrate(long bitrate) {
-        return bitrate > Env.bitrateThreshold() ? new FieldState(String.valueOf(bitrate))
+        return bitrate >= Env.bitrateThreshold() ? new FieldState(String.valueOf(bitrate))
                 : new FieldState(String.valueOf(bitrate), Status.BROKEN.toString());
     }
 
