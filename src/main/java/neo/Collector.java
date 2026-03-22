@@ -14,7 +14,6 @@ public class Collector {
     private String musicDirectory = Env.getMusicDirectory();
     private String workingDirectory = Env.getWorkingDirectory();
     private String collectedDirectory = Utility.createDirectory(workingDirectory + "/collected");
-    private String discardedDirectory = Utility.createDirectory(workingDirectory + "/discarded");
     private String transferredDirectory = Utility.createDirectory(workingDirectory + "/transferred");
 
     private List<String> ignoreFolders = List.of(
@@ -27,13 +26,13 @@ public class Collector {
         try {
             File music = new File(musicDirectory);
 
-            collectMusic(music, 0);
+            collectMusic(music);
         } catch (Exception ex) {
             Utility.handleException(ex);
         }
     }
 
-    private void collectMusic(File path, int depth) throws Exception {
+    private void collectMusic(File path) throws Exception {
         File[] files = path.listFiles();
 
         for (File file : files) {
@@ -43,20 +42,17 @@ public class Collector {
             }
 
             if (file.isDirectory()) {
-                collectMusic(file, ++depth);
+                collectMusic(file);
             } else {
+                if (Utility.isFileBroken(file)) {
+                    continue;
+                }
+
                 String absoluteString = file.getAbsolutePath();
                 Path absolutePath = Path.of(absoluteString);
                 String fileName = file.getName();
-                String location = absoluteString.replace(fileName, "");
 
-                if (!Utility.isFileLegit(file)) {
-                    Files.copy(absolutePath, Path.of(discardedDirectory + "/" + fileName),
-                            StandardCopyOption.REPLACE_EXISTING);
-                } else {
-                    Files.copy(absolutePath, Path.of(collectedDirectory + "/" + fileName),
-                            StandardCopyOption.REPLACE_EXISTING);
-                }
+                Files.copy(absolutePath, Path.of(collectedDirectory + "/" + fileName), StandardCopyOption.REPLACE_EXISTING);
             }
         }
     }

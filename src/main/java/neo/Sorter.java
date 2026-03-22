@@ -54,10 +54,8 @@ public class Sorter {
                 buildMap(file);
             } else {
                 String absoluteString = file.getAbsolutePath();
-                String fileName = file.getName();
 
-                if (!Utility.isFileLegit(file)) {
-                    System.out.printf("The file %s is not a proper audio file, skip.\n", fileName);
+                if (Utility.isFileBroken(file)) {
                     continue;
                 }
 

@@ -20,8 +20,10 @@ public class Main {
         passedArguments.forEach((argument) -> {
             if (CommandArgument.COLLECT.getArgument().equals(argument)) {
                 // new Collector().run();
-            } else if (CommandArgument.FIND_BROKEN_TAGS.getArgument().equals(argument)) {
-                // new BrokenTagsFinder().run();
+            } else if (CommandArgument.OVERVIEW.getArgument().equals(argument)) {
+                // new OverviewBuilder().run();
+            } else if (CommandArgument.REPORT.getArgument().equals(argument)) {
+                // new ReportBuilder().run();
             } else if (CommandArgument.MODIFY_TAGS.getArgument().equals(argument)) {
                 // new TagModifier().run();
             } else if (CommandArgument.SORT.getArgument().equals(argument)) {

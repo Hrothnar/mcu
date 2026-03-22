@@ -1,13 +1,10 @@
 package neo;
 
 import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
+import java.util.UUID;
 
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
-import org.jaudiotagger.audio.AudioHeader;
 import org.jaudiotagger.tag.FieldKey;
 import org.jaudiotagger.tag.Tag;
 
@@ -22,7 +19,7 @@ public class TagModifier {
 
     private String workingDirectory = Env.getWorkingDirectory();
     private String collectedDirectory = Utility.createDirectory(workingDirectory + "/collected");
-    private String newTagsDirectory = Utility.createDirectory(workingDirectory + "/new_tags");
+    private String newTagsDirectory = Utility.checkDirectory(workingDirectory + "/tags_new");
 
     public void run() {
         try {
@@ -36,46 +33,45 @@ public class TagModifier {
         }
     }
 
-    private void modifyTags(File path) {
+    private void modifyTags(File path) throws Exception {
         File[] tagFiles = path.listFiles();
 
         for (int i = 0; i < tagFiles.length; i++) {
-            FileState[] properTags = om.readValue(tagFiles[i], FileState[].class);
+            FileState[] updTags = om.readValue(tagFiles[i], FileState[].class);
 
-            for (int j = 0; j < properTags.length; j++) {
-                FileState fileState = properTags[j];
+            for (int j = 0; j < updTags.length; j++) {
+                FileState fileState = updTags[j];
 
-                try {
-                    File file = new File(fileState.location + "/" + fileState.name);
+                File file = new File(collectedDirectory + "/" + fileState.name);
 
-                    if (file == null || !Utility.isFileLegit(file)) {
-                        System.out.printf("The file %s is not a proper audio file or it does not exist, skip.\n",
-                                file.getName());
-                        continue;
-                    }
-
-                    AudioFile audio = AudioFileIO.read(file);
-                    Tag tag = audio.getTag();
-
-                    if (fileState.title.modified != null)
-                        tag.setField(FieldKey.TITLE, fileState.title.modified);
-
-                    if (fileState.artist.modified != null)
-                        tag.setField(FieldKey.ARTIST, fileState.artist.modified);
-
-                    if (fileState.album.modified != null)
-                        tag.setField(FieldKey.ALBUM, fileState.album.modified);
-
-                    if (fileState.year.modified != null)
-                        tag.setField(FieldKey.YEAR, fileState.year.modified);
-
-                    if (fileState.genre.modified != null)
-                        tag.setField(FieldKey.GENRE, fileState.genre.modified);
-
-                    audio.commit();
-                } catch (Exception ex) {
-                    Utility.handleException(ex);
+                if (Utility.isFileBroken(file)) {
+                    continue;
                 }
+
+                AudioFile audio = AudioFileIO.read(file);
+                Tag tag = audio.getTag();
+
+                if (fileState.title.upd != null) {
+                    tag.setField(FieldKey.TITLE, fileState.title.upd);
+                }
+
+                if (fileState.artist.upd != null) {
+                    tag.setField(FieldKey.ARTIST, fileState.artist.upd);
+                }
+
+                if (fileState.album.upd != null) {
+                    tag.setField(FieldKey.ALBUM, fileState.album.upd);
+                }
+
+                if (fileState.year.upd != null) {
+                    tag.setField(FieldKey.YEAR, fileState.year.upd);
+                }
+
+                if (fileState.genre.upd != null) {
+                    tag.setField(FieldKey.GENRE, fileState.genre.upd);
+                }
+
+                audio.commit();
             }
         }
     }
@@ -87,12 +83,14 @@ public class TagModifier {
             if (file.isDirectory()) {
                 renameFiles(file);
             } else {
-                if (Utility.isFileLegit(file)) {
-                    AudioFile audio = AudioFileIO.read(file);
-                    Tag tag = audio.getTag();
-
-                    renameFile(file, tag);
+                if (Utility.isFileBroken(file)) {
+                    continue;
                 }
+
+                AudioFile audio = AudioFileIO.read(file);
+                Tag tag = audio.getTag();
+
+                renameFile(file, tag);
             }
         }
     }
@@ -109,6 +107,24 @@ public class TagModifier {
         artist = artist == null ? fileName : artist;
         title = title == null ? fileName : title;
 
-        file.renameTo(new File(location + "/" + artist + " - " + title + "." + fileExtension));
+        String uuid = UUID.randomUUID().toString();
+        String temporalFileName = location + "/" + uuid + "." + fileExtension;
+        String newFileName = location + "/" + artist + " - " + title + "." + fileExtension;
+        String alternativeFileName = location + "/" + artist + " - " + title + "-" + uuid + "." + fileExtension;
+
+        File newName = null;
+
+        File temporal = new File(temporalFileName);
+        file.renameTo(temporal);
+
+        File newFile = new File(newFileName);
+
+        if (newFile.exists()) {
+            newName = new File(alternativeFileName);
+        } else {
+            newName = new File(newFileName);
+        }
+
+        temporal.renameTo(newName);
     }
 }

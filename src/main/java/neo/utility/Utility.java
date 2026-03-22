@@ -15,6 +15,9 @@ import org.jaudiotagger.tag.Tag;
 
 public class Utility {
 
+    private static String workingDirectory = Env.getWorkingDirectory();
+    private static String brokenFilesDirectory = Utility.createDirectory(workingDirectory + "/broken_files");
+
     public static <T> List<List<T>> splitList(List<T> list, int partitionSize) {
         List<List<T>> partitions = new ArrayList<>();
 
@@ -80,8 +83,12 @@ public class Utility {
         });
     }
 
-    public static boolean isFileLegit(File file) {
+    public static boolean isFileBroken(File file) {
         try {
+            if (file == null) {
+                return true;
+            }
+
             String fileExtension = file.getName().substring(file.getName().lastIndexOf(".") + 1);
 
             AudioFile audio = AudioFileIO.read(file);
@@ -92,10 +99,19 @@ public class Utility {
                 throw new Exception("File could now be handled");
             }
 
-            return true;
-        } catch (Exception ex) {
-            System.out.printf("There's something wrong with this file %s, transfer to discarded\n", file.getAbsolutePath());
             return false;
+        } catch (Exception ex) {
+            System.out.printf("There's something wrong with this file %s\n", file.getAbsolutePath());
+
+            if (file.exists()) {
+                try {
+                    Files.move(Path.of(file.getAbsolutePath()), Path.of(brokenFilesDirectory + "/" + file.getName()));
+                } catch (IOException e) {
+                    handleException(e);
+                }
+            }
+
+            return true;
         }
     }
 }

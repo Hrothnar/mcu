@@ -4,7 +4,7 @@ import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.util.regex.Pattern;
 
-import neo.dto.FieldState;
+import neo.dto.TagState;
 import neo.enums.Status;
 
 public class Validator {
@@ -13,15 +13,15 @@ public class Validator {
     private static Pattern cyrillicRangePattern = Pattern.compile("[\u0400-\u04FF]");
     private static Pattern symbols = Pattern.compile("\\.ru|\\.com|\\.net|\\[muz");
 
-    public static FieldState validateText(String text) {
+    public static TagState validateText(String text) {
         if (text.isBlank()) {
-            return new FieldState(text, Status.EMPTY.toString());
+            return new TagState(text, Status.EMPTY);
         }
 
         int incorrectSymbols = text.length();
 
         if (symbols.matcher(text).find()) {
-            return new FieldState(text, Status.BROKEN.toString());
+            return new TagState(text, Status.BROKEN);
         }
 
         char[] bytes = text.toCharArray();
@@ -37,38 +37,38 @@ public class Validator {
         }
 
         return ((double) incorrectSymbols / text.length()) > 0.2 ? 
-                    new FieldState(text, Status.BROKEN.toString()) : 
-                    new FieldState(text);
+                    new TagState(text, Status.BROKEN) : 
+                    new TagState(text);
         }
 
-    public static FieldState validateBitrate(long bitrate) {
-        return bitrate >= Env.bitrateThreshold() ? new FieldState(String.valueOf(bitrate))
-                : new FieldState(String.valueOf(bitrate), Status.BROKEN.toString());
+    public static TagState validateBitrate(long bitrate) {
+        return bitrate >= Env.bitrateThreshold() ? new TagState(String.valueOf(bitrate))
+                : new TagState(String.valueOf(bitrate), Status.BROKEN);
     }
 
-    public static FieldState validateYear(String year) {
+    public static TagState validateYear(String year) {
         if (year.isBlank()) {
-            return new FieldState(year, Status.EMPTY.toString());
+            return new TagState(year, Status.EMPTY);
         }
 
         try {
             LocalDate date = LocalDate.parse(year);
 
             if (date.isAfter(LocalDate.of(1777, 1, 1))) {
-                return new FieldState(year);
+                return new TagState(year);
             }
         } catch (DateTimeException ex) {
             try {
                 int parsed = Integer.parseInt(year);
 
                 if (parsed < 1777) {
-                    return new FieldState(year, Status.BROKEN.toString());
+                    return new TagState(year, Status.BROKEN);
                 }
             } catch (NumberFormatException ex2) {
-                return new FieldState(year, Status.BROKEN.toString());
+                return new TagState(year, Status.BROKEN);
             }
         }
 
-        return new FieldState(year);
+        return new TagState(year);
     }
 }
