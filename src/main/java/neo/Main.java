@@ -23,11 +23,11 @@ public class Main {
             } else if (CommandArgument.OVERVIEW.getArgument().equals(argument)) {
                 // new OverviewBuilder().run();
             } else if (CommandArgument.REPORT.getArgument().equals(argument)) {
-                // new ReportBuilder().run();
+                new ReportBuilder().run();
             } else if (CommandArgument.MODIFY_TAGS.getArgument().equals(argument)) {
                 // new TagModifier().run();
             } else if (CommandArgument.SORT.getArgument().equals(argument)) {
-                new Sorter().run();
+                // new Sorter().run();
             } else if (CommandArgument.BREAKDOWN.getArgument().equals(argument)) {
                 // new BreakdownBuilder().run();
             }

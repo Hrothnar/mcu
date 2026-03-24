@@ -24,7 +24,7 @@ public class Sorter {
 
     private String collectedPath = "/collected";
     private String artistsPath = "/artists";
-    private String otherArtistsPath = "/artists_other";
+    private String otherArtistsPath = "/artists_others";
 
     private String collectedDirectory = Utility.createDirectory(workingDirectory + collectedPath);
     private String artistsDirectory = Utility.createDirectory(workingDirectory + artistsPath);

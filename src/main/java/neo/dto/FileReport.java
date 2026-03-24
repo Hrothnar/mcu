@@ -31,7 +31,7 @@ public class FileReport extends FileState {
     }
 
     private static boolean isBroken(TagState tag) {
-        return tag.sts.equals(Status.EMPTY.toString()) || tag.sts.equals(Status.BROKEN.toString());
+        return tag.sts != null && (tag.sts.equals(Status.EMPTY.toString()) || tag.sts.equals(Status.BROKEN.toString()));
     }
 
     @Override

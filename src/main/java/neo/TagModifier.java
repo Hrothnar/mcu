@@ -104,8 +104,8 @@ public class TagModifier {
         String artist = tag.getFirst(FieldKey.ARTIST);
         String title = tag.getFirst(FieldKey.TITLE);
 
-        artist = artist == null ? fileName : artist;
-        title = title == null ? fileName : title;
+        artist = artist == null ? fileName : artist.replace("/", "");
+        title = title == null ? fileName : title.replace("/", "");
 
         String uuid = UUID.randomUUID().toString();
         String temporalFileName = location + "/" + uuid + "." + fileExtension;

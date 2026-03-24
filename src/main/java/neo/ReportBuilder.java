@@ -23,7 +23,7 @@ public class ReportBuilder {
 
     private String workingDirectory = Env.getWorkingDirectory();
     private String collectedDirectory = Utility.createDirectory(workingDirectory + "/collected");
-    private String brokenTagsDirectory = Utility.createDirectory(workingDirectory + "/broken_tags");
+    private String brokenTagsDirectory = Utility.createDirectory(workingDirectory + "/tags_broken");
 
     public void run() {
         try {
