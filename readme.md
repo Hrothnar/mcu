@@ -1,94 +1,82 @@
-# MCU (Music Cleaning Utility)
+# Music Cleanup Utility
+A simple program written to help me organize my music. 
 
-This is a utility for organizing music, by finding broken tags, applying new ones, creating simple breakdowns and another couple of features.
-## Broken tags finder
+[Introduction](#introduction) | [Features](#features) | [Tech Stack](#tech-stack) | [Installation](#installation) | [Quick start](#quick-start) | [Known issues and limitations](#known-issues-and-limitations) | [Getting help](#getting-help) | [Contributing](#contributing) | [License](#license)
+## Introduction
+The program consist of several features aiming to solve different problems I faced. With the flags provided different features can be activated, with no flags provided all of them in use.
+## Features
+- **COLLECT("--collect")** Collect and copy all audio files (primarily `.mp3` and `.flac`) from the specified `ROOT_MUSIC_DIRECTORY` to the program working directory `mcu/collected` in a flat format - unfolding all folders along the way. All other features are working with this folder as a root folder. You can specify directories for exclusion, these directories are copies as they are to the `mcu/transferred` directory. 
 
-Starts the process of finding tracks with damaged tags, breaking it down in a convenient format for further analyze and treatment.
-
-- specify a root music directory
-- go over every sub-directory recursively
-- for every track find broken tags:
-	- title
-	- artist
-	- album
-	- year
-	- bitrate
-	- genre
-	- album cover
-- if the file is healthy - continue
-- if at least one of the tags is broken, move the current .mp3 file to a temporal dedicated flat folder called "Broken"
-- build a broken.json file with the format:
+- **OVERVIEW("--overview")** Creates an overview of all tracks showing their main tags in a convenient `.json` format. Here's an example:
 ```JSON
 [{
-	"name": {"value": "name", "status": "broken"},
-	"location": {"value": "absolute path"},
-	"title": {"value": "title", "status": "empty/broken"},
-	"artist": {"value": "artist", "status": "empty/broken"},
-	"album": {"value": "album", "status": "empty/broken"},
-	"year": {"value": "year", "status": "empty/broken"},
-	"bitrate": {"value": "bitrate", "status": "empty/low"},
-	"album cover": {"value": "album cover", "status": "empty"}
+	"name": "ACDC - Hells Bells.mp3",
+	"title": {"old": "Hells Bells", "upd": "-"},
+	"artist": {"old": "AC/DC", "upd": "-"},
+	"album": {"old": "", "upd": "-"},
+	"year": {"old": "0", "upd": "-"},
+	"genre": {"old": "", "upd": "-"}
 }]
 ```
-Note:
-- original - initial track's status (tags)
-- modified - the new track's status (tags)
-- name - current file name
-- broken/empty, x - might be either "broken" or "empty", x - is the initial tag value
-- the track and the record in the .json are matched by the field "name" in the "original" category
-- every tag has its own rules based on which the program determines whether the tag is "broken" or not, with "empty" tags it's straightforward
+Current values lies under the field `old` in every corresponding tag. The feature generates multiple overview files with N (default: 32) songs in every file.
+The overview gives you an overall understanding of the tracks' state and it's a useful format to use for the future tag modification. The files live under `mcu/overview`.
 
-After this, I will have a complete .json file and containing all tracks that have some flaws. With this list, I can manually of with the help of AI find missing metadata and fill "modified" field with the found information fixing broken tracks.
-
-There are several issues that require manual review after the process:
-- some tags can have a value, but it could meaningless or just simply wrong
-- bitrate can not be updated, in the case of low bitrate downloading a new version of the song is advised
-- album cover can be updated at all. Beyond that, some composition might have a cover, but it might be incorrect. For cover updating AIMP's tag editor can be used, it does the job pretty well
-
-Only after manual review and corrections I can go to the next step.
-## Tag modifier
-
-Starts the tag recovery process by assigning new tags to the damaged tracks. This feature uses .json file that it goes over and assigns provided tags to the .mp3 file.
-
-Format of the .json file:
+- **REPORT("--report")** Provides similar in terms of format to overview report, with some additional info, the most important of which is `breakaged` . The `breakages` field shows how many tags are either `BROKEN` or `EMPTY`. Every tag goes through a dedicated validation to determine whether a tag is a legit one. Reports similarly organized into different files with N (default: 20) songs in each. The format:
 ```JSON
 [{
-	"name": {"value": "name"},
-	"location": {"value": "absolute path"},
-	"title": {"value": "title", "status": "empty/broken", "modified": "new title"},
-	"artist": {"value": "artist", "status": "empty/broken", "modified": "new artist"},
-	"album": {"value": "album", "status": "empty/broken", "modified": "new album"},
-	"year": {"value": "year", "status": "empty/broken", "modified": "new year"},
-	"bitrate": {"value": "bitrate", "status": "empty/low", "modified": "new bitrate"},
-	"album cover": {"value": "album cover", "status": "empty"}
+    "name": "ACDC - Hells Bells.mp3",
+    "title": {"old": "Hells Bells"},
+    "artist": {"old": "AC/DC"},
+    "album": {"old": "", "sts": "EMPTY"},
+    "year": {"old": "0", "sts": "BROKEN"},
+    "genre": {"old": "", "sts": "EMPTY"},
+    "bitrate": {"old": "320"},
+    "breakages": 3,
+    "cover": {"old": "image/png:3.png:85873"}
 }]
 ```
-Note:
-- the program will modify only present tags, leaving those that are not specified as they are
-- bitrate could not be modifies, so this is just a remark to download a new version of the song
-- album cover can't be easily updated, so this filed is missing in the "modified" category
+This format provides a more detailed file state, but only the files that has at least one breakage are reported. The field `upd` is also not present to reduce visual noise. The files live under `mcu/tags_broken`.  
 
-## Sorter
 
-This feature sorts songs and puts them into separated folders along with that it renames files based on their title and artist. Sorter creates new root folder with all the changes.
-
-- the process affect songs only at the first level of hierarchy, assuming that if the folder has sub-folder all the songs in it are already sorted and structured (ready discography)
-- complete folders and not musical files are copied as they are
-- every song has its "artist" and "album" to determine and create (if needed) its new location
-- if a song has several contributing artists (divided by , & or | ) the program takes the first one in order to name a directory
-- affected files are auto renamed in the following way: "artist" - "title". In case of several artists they go untouched for the name
-### Majority separation
-
-Artist are presented in the playlist in an unequal amounts, based on their presence (how many compositions of this author are there) they are separated to "Остальные" и "Артисты".
-To Остальные goes artists below 7 songs and they are not categorized further into separate folder for albums. In "Артисты" are artists who have more presence, and they are categorized by albums, so every song of the singer goes to its corresponding folder.
-
-Every name change and relocation is logged in the following format:
+- **MODIFY_TAGS("--modify-tags")** Modifies tags of the previously collected files `mcu/collected` based on the provided set of data in the directory `mcu/tags_new`. The program goes over the folder and matches a song and its metadata in a `.json` file by the field `name` and the actual file name, so don't change the name of a file or change in both cases if you want it to be updated. Format:
 ```JSON
 [{
-	"name": {"value": "name", "modified": "new name"},
-	"location": {"value": "absolute path", "modified": "new location"},
+	"name": "ACDC - Hells Bells.mp3",
+	"title": {"old": "Hells Bells", "upd": "Hells Bells"},
+	"artist": {"old": "AC/DC", "upd": "AC/DC"},
+	"album": {"old": "", "upd": "Back in Black"},
+	"year": {"old": "0", "upd": "1980"},
+	"genre": {"old": "", "upd": "Hard Rock"}
 }]
 ```
-## Status map builder
+   Modifier takes the relevant`upd` values if it is provided and updated the matching track   metadata.
+   Besides the tag update, as a second step, the feature renames all the files in the following pattern: `artist - title` (duplicates are preserved).
 
-Genre breakdown of all the songs.
+- **SORT("--sort")** Sorts audio-tracks into two folders: `artists` and `artists_others` based on the provided `presence threshold` (default: 10). The feature builds a map with an artists as a key, and value as an array of tracks, then, if an artists' presence exceeds the threshold the tracks falls into `artist` category, if not `artists_others`. The program automatically created needed artist-folders putting relevant tracks in them.
+
+- **BREAKDOWN("--breakdown")** Creates a single `.json` file with the collection genre breakdown. 
+## Tech stack
+- Java 21
+- jaudiotagger (a cool library for working with audio files)
+- Maven
+## Installation
+Copy the code from the repository and run it with Maven. 
+### Prerequisites
+- JVM, Maven
+## Quick start
+You can use Intellij IDEA or Java extension pack for your VSC and run the program with the provided runner. 
+### Configuration
+Environment file lives under `src/main/resources/environments.env`. Key settings include:
+
+```
+ROOT_MUSIC_DIRECTORY=(absolut path to the desired music folder)
+ROOT_WORKING_DIRECTORY=(absolut path to the desired program working folder)
+```
+## Known issues and limitations
+- this program is flawless
+## Getting help
+If you encounter a bug or have a question about the project, please use the repository issue tracker or reach me out directly.
+## Contributing
+Pull requests are welcome. For substantial changes, please open an issue first to discuss the proposed approach.
+## License
+This project is licensed under the MIT License. See the `LICENSE` file for details.
