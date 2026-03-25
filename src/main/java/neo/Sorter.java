@@ -61,8 +61,9 @@ public class Sorter {
 
                 AudioFile audio = AudioFileIO.read(file);
                 Tag tag = audio.getTag();
+                String artists = tag.getFirst(FieldKey.ARTIST);
 
-                String artist = extractFirstArtist(tag);
+                String artist = Utility.extractFirstEntry(artists);
 
                 List<String> songs = collection.getOrDefault(artist, new ArrayList<>());
                 songs.add(absoluteString);
@@ -92,16 +93,5 @@ public class Sorter {
         } catch (IOException ex) {
             Utility.handleException(ex);
         }
-    }
-
-    private String extractFirstArtist(Tag tag) {
-        String artist = tag.getFirst(FieldKey.ARTIST);
-
-        String[] artistsChain1 = artist.split(",");
-        String[] artistsChain2 = artistsChain1[0].split("&");
-        String[] artistsChain3 = artistsChain2[0].split("\\|");
-        String[] artistsChain4 = artistsChain3[0].split("/");
-
-        return artistsChain4[0];
     }
 }

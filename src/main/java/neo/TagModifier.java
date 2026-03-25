@@ -19,7 +19,7 @@ public class TagModifier {
 
     private String workingDirectory = Env.getWorkingDirectory();
     private String collectedDirectory = Utility.createDirectory(workingDirectory + "/collected");
-    private String newTagsDirectory = Utility.checkDirectory(workingDirectory + "/tags_new");
+    private String newTagsDirectory = Utility.createDirectory(workingDirectory + "/tags_new");
 
     public void run() {
         try {
