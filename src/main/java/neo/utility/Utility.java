@@ -114,4 +114,15 @@ public class Utility {
             return true;
         }
     }
+
+    public static String extractFirstEntry(String text) {
+        String[] artistsChain1 = text.split(",");
+        String[] artistsChain2 = artistsChain1[0].split("&");
+        String[] artistsChain3 = artistsChain2[0].split("\\|");
+        String[] artistsChain4 = artistsChain3[0].split("/");
+        String[] artistsChain5 = artistsChain4[0].split("feat.");
+        String[] artistsChain6 = artistsChain5[0].split(";");
+
+        return artistsChain6[0];
+    }
 }
