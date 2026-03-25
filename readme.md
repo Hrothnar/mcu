@@ -80,3 +80,26 @@ If you encounter a bug or have a question about the project, please use the repo
 Pull requests are welcome. For substantial changes, please open an issue first to discuss the proposed approach.
 ## License
 This project is licensed under the MIT License. See the `LICENSE` file for details.
+
+---
+
+Even though the project was created by me without the use of any kind of AI I found it particularly convenient to use it to help with filling up the `tags_new` files with correct values. Here's the message I used to instruct an AI:
+
+	I need your help to find correct audio track metadata. I have prepared a set of .json files that contains tack metadata breakdowns, the problems is that some values are missing or wrong and I need to recover them and get the right parameters. I attached several files so you understand what I'm talking about.
+
+	Here's the instructions:
+	- read available information and identify a track, field "old" contains the current value of a tag, you don't alter it, only read
+	- sometimes the current value are too broken, so don't hesitate to rear the "name" field, it might help
+	- upon getting correct information from the internet, insert it under the corresponding tag to the field "upd" (has value "-" by default as a placeholder), don't leave this field unfilled
+	- try to find official information for every tag, avoid making them up. Use widely known information, don't overdo it 
+	- if the official source tells that there were several of something "artists", "genres", etc. write them through a comma (e.g. "artist one, artist two" )  from the most to less significant
+	- you can use the value "Unknown" if you can't justify a tag in any way
+	- name - the name of a file, usually in the format of "artist" - "title", don't change
+	- title - title as it is, not much to add
+	- artist - artists, or, in some cases an array of artists
+	- album - a song's album, might be "Single" or "Soundtrack" or "Special" if there's no an album per se
+	- year - release year
+	- genre - try to use more specific genre(s) (e.g. "punk rock" instead of "rock"), but if it's too difficult to determine, just keep it simple, and yes, you can add several genres if it makes sense
+	- provide me with a prepared and validated downloadable .json file
+
+	Analyze the information and ask questions if you have any before we start.
